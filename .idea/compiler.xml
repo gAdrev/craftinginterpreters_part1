@@ -9,8 +9,8 @@
         <module name="jlox" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="jlox" target="1.5" />
+    <bytecodeTargetLevel target="1.7">
+      <module name="jlox" target="1.7" />
     </bytecodeTargetLevel>
   </component>
 </project>
