@@ -1,16 +1,22 @@
 package org.javi.compilers.jlox;
 
 import javax.management.RuntimeErrorException;
+import java.util.List;
 
-public class Interpreter implements Expr.Visitor<Object> {
+public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
-    void interpret(Expr expression) {
+    void interpret(List<Stmt> statements) {
         try {
-            Object value = evaluate(expression);
-            System.out.println(stringify(value));
+            for (Stmt statement: statements) {
+                execute(statement);
+            }
         } catch (RuntimeError error) {
             Lox.runtimeError(error);
         }
+    }
+
+    private void execute(Stmt stmt) {
+        stmt.accept(this);
     }
 
     private String stringify(Object object) {
@@ -124,5 +130,18 @@ public class Interpreter implements Expr.Visitor<Object> {
             return;
 
         throw new RuntimeError(operator, "Operands must be a number.");
+    }
+
+    @Override
+    public Void visitExpressionStmt(Stmt.Expression stmt) {
+        evaluate(stmt.expression);
+        return null;
+    }
+
+    @Override
+    public Void visitPrintStmt(Stmt.Print stmt) {
+        Object value = stmt.expression.accept(this);
+        System.out.println(stringify(value));
+        return null;
     }
 }
