@@ -24,3 +24,8 @@ hs_err_pid*
 /.idea/**.iws
 /.idea/workspace.xml
 /.idea/tasks.xml
+
+/target
+/.vscode
+/.idea/uiDesigner.xml
+
