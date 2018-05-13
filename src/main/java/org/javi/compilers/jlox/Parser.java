@@ -69,8 +69,34 @@ public class Parser {
         return new Stmt.Expression(expr);
     }
 
+    private Expr assignment() {
+        // A recursive descent parser with a single lookahead can't realize
+        // we're parsing an assignment until after seeing the '=', which could
+        // be many tokens after the first one that makes up the lvalue:
+        // Here, a is more than 1 token apart from the '=':
+        // a.b.c = 27 ;
+
+        Expr expr = equality();
+
+        if (match(EQUAL)) {
+            Token equals = previous();
+
+            // Recursion: assignment is right-associative.
+            Expr value = assignment();
+
+            if (expr instanceof Expr.Variable) {
+                Token name = ((Expr.Variable)expr).name;
+                return new Expr.Assign(name, value);
+            }
+
+            error(equals, "Invalid assignment target.");
+        }
+
+        return expr;
+    }
+
     private Expr expression() {
-        return equality();
+        return assignment();
     }
 
     private Expr equality() {
