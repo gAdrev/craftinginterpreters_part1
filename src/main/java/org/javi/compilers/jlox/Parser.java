@@ -99,6 +99,8 @@ public class Parser {
     }
 
     private Expr assignment() {
+        Expr expr = or();
+
         // A recursive descent parser with a single lookahead can't realize
         // we're parsing an assignment until after seeing the '=', which could
         // be many tokens after the first one that makes up the lvalue:
@@ -119,6 +121,30 @@ public class Parser {
             }
 
             error(equals, "Invalid assignment target.");
+        }
+
+        return expr;
+    }
+
+    private Expr or() {
+        Expr expr = and();
+
+        while (match(OR)) {
+            Token operator = previous();
+            Expr right = and();
+            expr = new Expr.Logical(expr, operator, right);
+        }
+
+        return expr;
+    }
+
+    private Expr and() {
+        Expr expr = equality();
+
+        while (match(AND)) {
+            Token operator = previous();
+            Expr right = equality();
+            expr= new Expr.Logical(expr, operator, right);
         }
 
         return expr;
