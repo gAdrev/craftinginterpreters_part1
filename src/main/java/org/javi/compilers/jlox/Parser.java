@@ -43,6 +43,8 @@ public class Parser {
             return ifStatement();
         if (match(PRINT))
             return printStatement();
+        if (match(WHILE))
+            return whileStatement();
         if (match(LEFT_BRACE))
             return new Stmt.Block(block());
 
@@ -81,6 +83,15 @@ public class Parser {
         return new Stmt.Var(name, initializer);
     }
 
+    private Stmt whileStatement() {
+        consume(LEFT_PAREN, "Expect '(' after while.");
+        Expr condition = expression();
+        consume(RIGHT_PAREN, "Expect ')' after while.");
+        Stmt body = statement();
+
+        return new Stmt.While(condition, body);
+    }
+
     private Stmt expressionStatement() {
         Expr expr = expression();
         consume(SEMICOLON, "Expect ';' after expression.");
@@ -99,15 +110,13 @@ public class Parser {
     }
 
     private Expr assignment() {
-        Expr expr = or();
-
         // A recursive descent parser with a single lookahead can't realize
         // we're parsing an assignment until after seeing the '=', which could
         // be many tokens after the first one that makes up the lvalue:
         // Here, a is more than 1 token apart from the '=':
         // a.b.c = 27 ;
 
-        Expr expr = equality();
+        Expr expr = or();
 
         if (match(EQUAL)) {
             Token equals = previous();
